@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>DOSJE 10/27 — POVJERLJIVO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Special+Elite&family=Caveat:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+
+/* ============================================================
+   DOSJE 10/27 — svi tekstovi, odgovori i datumi žive u CONFIG
+   objektu na dnu fajla (potraži "KONFIGURACIJA" u <script>).
+   Izmijenite ondje, ne morate dirati CSS/HTML.
+   ============================================================ */
+
+:root{
+  --bg: #0b0a08;
+  --bg-2: #141210;
+  --paper: #ece1c8;
+  --paper-dim: #cdbf9e;
+  --ink: #201c17;
+  --red: #8c2a22;
+  --red-bright: #a8362b;
+  --green: #4b5a44;
+  --gold: #c7a15b;
+  --line: rgba(236,225,200,0.16);
+  --font-display: 'Oswald', sans-serif;
+  --font-doc: 'Special Elite', 'Courier New', monospace;
+  --font-hand: 'Caveat', cursive;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; }
+body{
+  background: radial-gradient(ellipse at 50% 20%, var(--bg-2), var(--bg) 70%);
+  color: var(--paper);
+  font-family: var(--font-doc);
+  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+}
+
+::selection{ background: var(--red); color: var(--paper); }
+:focus-visible{ outline: 2px solid var(--gold); outline-offset: 3px; }
+
+/* film grain + vignette, fixed over everything */
+#grain{
+  position: fixed; inset:0; z-index: 500; pointer-events:none;
+  opacity: 0.05; mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#vignette{
+  position:fixed; inset:0; z-index:499; pointer-events:none;
+  box-shadow: inset 0 0 18vw 2vw rgba(0,0,0,0.75);
+}
+
+#app{ position: relative; width:100%; height:100vh; height:100dvh; }
+
+.screen{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform: translateY(14px);
+  transition: opacity .55s ease, transform .55s ease, visibility 0s .55s;
+  overflow-y:auto; overflow-x:hidden;
+  -webkit-overflow-scrolling: touch;
+}
+.screen.active{
+  opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0);
+  transition: opacity .55s ease, transform .55s ease;
+}
+
+.inner{ max-width: 640px; margin:0 auto; width:100%; padding: 5.5rem 1.4rem 3rem; flex:1; display:flex; flex-direction:column; }
+
+/* ---------- top bar ---------- */
+.topbar{
+  position:absolute; top:0; left:0; right:0; z-index:10;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 1.1rem 1.4rem; max-width:640px; margin:0 auto;
+}
+.topbar .proj{ font-family: var(--font-display); font-size:.78rem; letter-spacing:.14em; color: var(--paper-dim); text-transform:uppercase; }
+.topbar .stage{ font-family: var(--font-display); font-size:.72rem; letter-spacing:.1em; color: var(--paper-dim); text-transform:uppercase; opacity:.8; }
+.back-btn{
+  position:absolute; top:1.1rem; left:1.4rem; z-index:11;
+  background:none; border:none; color:var(--paper-dim); font-size:1.3rem;
+  cursor:pointer; line-height:1; padding:.3rem .5rem;
+  font-family: var(--font-doc);
+}
+.back-btn:hover{ color:var(--paper); }
+
+/* ---------- classified stamp ---------- */
+.stamp{
+  display:inline-block; border:3px solid var(--red-bright); color: var(--red-bright);
+  font-family: var(--font-display); font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; padding: .3rem .8rem; transform: rotate(-6deg);
+  font-size:.72rem; opacity:.92; user-select:none;
+  filter: drop-shadow(0 0 1px rgba(168,54,43,.4));
+}
+
+/* ---------- typography ---------- */
+h1{ font-family: var(--font-display); font-weight:600; letter-spacing:.01em; line-height:1.05; }
+h2{ font-family: var(--font-display); font-weight:500; letter-spacing:.06em; text-transform:uppercase; font-size:.95rem; color: var(--gold); margin-bottom:.6rem; }
+p{ line-height:1.65; color: var(--paper); font-size: .98rem; max-width: 62ch; }
+p + p{ margin-top: .85rem; }
+.muted{ color: var(--paper-dim); }
+.hand{ font-family: var(--font-hand); font-size:1.35rem; color: var(--paper); line-height:1.3; }
+
+/* ---------- buttons ---------- */
+.btn{
+  font-family: var(--font-display); text-transform:uppercase; letter-spacing:.08em;
+  font-size:.82rem; font-weight:500; color: var(--paper); background:transparent;
+  border:1px solid var(--paper-dim); padding: 1rem 1.7rem; cursor:pointer;
+  transition: background .25s ease, color .25s ease, border-color .25s ease;
+  width:fit-content;
+}
+.btn:hover{ background: var(--paper); color: var(--bg); border-color: var(--paper); }
+.btn-primary{ border-color: var(--red-bright); color: var(--red-bright); }
+.btn-primary:hover{ background: var(--red-bright); color: var(--paper); }
+.btn:disabled{ opacity:.35; cursor:not-allowed; }
+.btn:disabled:hover{ background:transparent; color:var(--paper); }
+.btn-row{ margin-top: 2.2rem; display:flex; gap:.8rem; flex-wrap:wrap; }
+
+/* ---------- text input ---------- */
+.field{ margin-top: 1.6rem; display:flex; gap:.6rem; flex-wrap:wrap; }
+.field input[type=text]{
+  flex:1; min-width:180px; background: rgba(236,225,200,0.06); border:1px solid var(--line);
+  color: var(--paper); font-family: var(--font-doc); font-size:.95rem; padding: .9rem 1rem;
+}
+.field input[type=text]::placeholder{ color: var(--paper-dim); opacity:.55; }
+.field input[type=text]:focus{ border-color: var(--gold); background: rgba(236,225,200,0.1); }
+.feedback{ margin-top:.7rem; font-family: var(--font-display); font-size:.8rem; letter-spacing:.04em; min-height:1.2em; }
+.feedback.err{ color: var(--red-bright); }
+.feedback.ok{ color: var(--green); filter: brightness(1.7); }
+.skip-btn{ margin-top:.9rem; font-size:.72rem; padding:.7rem 1.2rem; opacity:.75; }
+.skip-btn:hover{ opacity:1; }
+.skip-btn[hidden]{ display:none; }
+
+@keyframes shake{ 10%,90%{transform:translateX(-1px);} 20%,80%{transform:translateX(2px);} 30%,50%,70%{transform:translateX(-4px);} 40%,60%{transform:translateX(4px);} }
+.shake{ animation: shake .5s; }
+
+/* ---------- pinned note ---------- */
+.pin-note{
+  background: var(--paper); color: var(--ink); font-family: var(--font-hand); font-size:1.3rem;
+  padding: 1.1rem 1.2rem 1.3rem; max-width: 230px; box-shadow: 0 10px 24px rgba(0,0,0,.5);
+  transform: rotate(3deg); position:relative; line-height:1.25; align-self:flex-end;
+  margin: 1.6rem 0 0;
+}
+.pin-note::before{
+  content:''; position:absolute; top:-9px; left:50%; transform:translateX(-50%);
+  width:14px; height:14px; border-radius:50%;
+  background: radial-gradient(circle at 35% 30%, #e5716a, #7a1e18 70%);
+  box-shadow: 0 3px 4px rgba(0,0,0,.5);
+}
+
+/* ---------- photo slot placeholders ---------- */
+.photo-slot{
+  aspect-ratio: 3/4; border:9px solid var(--paper); box-shadow: 0 10px 22px rgba(0,0,0,.55);
+  position:relative; background: repeating-linear-gradient(135deg, #2a2723, #2a2723 9px, #221f1b 9px, #221f1b 18px);
+  flex-shrink:0;
+}
+.photo-slot::after{
+  content: "\1F4F7  " attr(data-label);
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  text-align:center; padding: .8rem; font-family: var(--font-doc); font-size:.68rem;
+  color:#8a8478; background: rgba(0,0,0,.32); white-space:pre-line;
+}
+.photo-slot img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+/* ================= SCREEN 0 — ACCESS ================= */
+#s0 .inner{ justify-content:center; align-items:center; text-align:center; padding-top:2rem; }
+#s0 h1{ font-size:1.05rem; letter-spacing:.1em; text-transform:uppercase; color:var(--paper-dim); margin-bottom:.4rem; }
+#s0 .code-field{ margin-top:2rem; display:flex; gap:.6rem; }
+#s0 input{
+  width: 170px; text-align:center; letter-spacing:.3em; font-size:1.1rem;
+  background: rgba(236,225,200,0.06); border:1px solid var(--line); color:var(--paper);
+  font-family: var(--font-doc); padding: .9rem;
+}
+
+/* ================= SCREEN 1 — LANDING ================= */
+#s1 .inner{ justify-content:center; }
+.landing-stamp-row{ display:flex; justify-content:flex-end; margin-bottom:1.6rem; }
+#s1 h1{ font-size: clamp(2.6rem, 13vw, 3.6rem); }
+#s1 .subline{ margin-top:1.3rem; }
+
+/* ================= SCREEN 2 — BRIEFING ================= */
+#s2 .brief-block{ border-left:2px solid var(--red-bright); padding-left:1rem; margin-bottom:1.6rem; }
+#s2 .counter-note{ margin-top: 2rem; font-family: var(--font-hand); font-size:1.1rem; color: var(--paper-dim); }
+
+/* ================= TIMELINE (screen 3) ================= */
+.tl-scroll{
+  display:flex; gap:1rem; overflow-x:auto; padding: 1.6rem 0 1.4rem; margin: 0 -1.4rem; padding-left:1.4rem; padding-right:1.4rem;
+  scroll-snap-type: x proximity;
+}
+.tl-card{ flex-shrink:0; width: 160px; scroll-snap-align:start; }
+.tl-card .photo-slot{ width:100%; margin-bottom:.6rem; transform: rotate(-2deg); }
+.tl-card:nth-child(even) .photo-slot{ transform: rotate(2deg); }
+.tl-year{ font-family: var(--font-display); color: var(--gold); font-size:1rem; letter-spacing:.05em; margin-bottom:.3rem; }
+.tl-cap{ font-size:.82rem; line-height:1.45; color: var(--paper-dim); }
+.redact{
+  background: var(--ink); color: transparent; cursor:pointer; padding: 0 3px; border-radius:1px;
+  transition: color .3s ease, background .3s ease; user-select:none;
+}
+.redact.revealed{ background:transparent; color: var(--paper); text-decoration: underline dotted var(--red-bright); }
+
+/* ================= UV DOCUMENT (screen 4) ================= */
+.uv-doc{
+  position:relative; background: var(--paper); color: var(--ink); border-radius:1px;
+  padding: 1.6rem 1.4rem; margin-top:1rem; overflow:hidden; box-shadow: 0 12px 30px rgba(0,0,0,.5);
+  touch-action:none;
+}
+.uv-doc .doc-text{ font-size:.86rem; line-height:1.85; letter-spacing:.02em; position:relative; z-index:1; white-space:pre-line; }
+.uv-doc .cover{
+  position:absolute; inset:0; z-index:2; background:#100f0d;
+  -webkit-mask-image: radial-gradient(circle 85px at var(--mx,50%) var(--my,-40%), transparent 0%, transparent 55%, black 78%);
+          mask-image: radial-gradient(circle 85px at var(--mx,50%) var(--my,-40%), transparent 0%, transparent 55%, black 78%);
+}
+.uv-hint{ font-size:.78rem; color: var(--paper-dim); margin-top:.7rem; }
+.time-options{ display:flex; flex-wrap:wrap; gap:.6rem; margin-top:1.4rem; }
+.time-opt{
+  font-family: var(--font-display); letter-spacing:.05em; font-size:.85rem;
+  border:1px solid var(--line); background: rgba(236,225,200,0.04); color:var(--paper);
+  padding: .7rem 1.1rem; cursor:pointer; transition: all .2s ease;
+}
+.time-opt:hover{ border-color: var(--paper-dim); }
+.time-opt.wrong{ border-color: var(--red-bright); animation: shake .4s; }
+.time-opt.correct{ border-color: var(--green); background: rgba(75,90,68,0.35); color:#c8dcc0; }
+
+/* ================= LOCATION (screen 5) ================= */
+.polaroids{ display:flex; gap:1.1rem; overflow-x:auto; margin: 1.4rem -1.4rem 0; padding: .4rem 1.4rem 1rem; }
+.pol{ flex-shrink:0; width:130px; text-align:center; }
+.pol .photo-slot{ width:100%; margin-bottom:.5rem; }
+.pol:nth-child(1) .photo-slot{ transform: rotate(-4deg); }
+.pol:nth-child(2) .photo-slot{ transform: rotate(3deg); }
+.pol:nth-child(3) .photo-slot{ transform: rotate(-2deg); }
+.pol-cap{ font-family: var(--font-hand); font-size:1.05rem; color: var(--paper-dim); line-height:1.2; }
+.coord-note{ margin-top:1.3rem; padding: 1rem 1.1rem; border:1px dashed var(--line); }
+.coord-link{ font-family: var(--font-doc); font-size:.94rem; letter-spacing:.03em; color: var(--paper); text-decoration:none; cursor:pointer; }
+.coord-link:hover{ color: var(--gold); }
+.morse-key{ margin-top:1.3rem; border:1px dashed var(--line); padding: .1rem 1rem; }
+.morse-key summary{ cursor:pointer; padding: .8rem 0; font-family: var(--font-display); font-size:.74rem; letter-spacing:.06em; text-transform:uppercase; color: var(--paper-dim); }
+.morse-key summary:hover{ color: var(--paper); }
+.morse-key[open] summary{ color: var(--gold); }
+.morse-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap:.4rem .6rem; padding: .2rem 0 1rem; font-size:.72rem; color: var(--paper-dim); font-family: var(--font-doc); }
+
+/* ================= EVIDENCE (screen 6) ================= */
+.ev-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; margin-top:1.4rem; }
+.ev-card{ border:1px solid var(--line); padding: 1.1rem .9rem; text-align:center; }
+.ev-card .ic{ font-size:1.4rem; margin-bottom:.5rem; }
+.ev-card .val{ font-family: var(--font-display); font-size:1rem; color: var(--gold); }
+.ev-card .lbl{ font-size:.72rem; color: var(--paper-dim); margin-top:.2rem; text-transform:uppercase; letter-spacing:.06em; }
+.final-q{ margin-top: 2.2rem; }
+
+/* ================= REVEAL (screen 7) ================= */
+#s7 .inner{ justify-content:center; align-items:center; text-align:center; }
+#s7 .correct-tag{ font-family: var(--font-display); letter-spacing:.15em; color: var(--green); filter:brightness(1.6); text-transform:uppercase; font-size:.9rem; opacity:0; }
+#s7 .reveal-title{ font-size: clamp(2.4rem, 12vw, 3.4rem); margin-top:.6rem; opacity:0; }
+#s7 .invite-card{
+  margin-top: 2.2rem; background: var(--paper); color: var(--ink); padding: 2rem 1.6rem;
+  box-shadow: 0 20px 50px rgba(0,0,0,.55); max-width: 420px; width:100%; opacity:0;
+}
+#s7 .invite-card .heart{ font-size:1.4rem; color: var(--red-bright); margin-bottom:1rem; }
+.invite-rows{ display:flex; flex-direction:column; gap: 1rem; margin-top:.4rem; }
+.invite-row{ border-top:1px solid rgba(0,0,0,.12); padding-top: .9rem; }
+.invite-row .d{ font-family: var(--font-display); font-size:1.05rem; }
+.invite-row .l{ font-family: var(--font-doc); font-size:.8rem; color:#5a5348; margin-top:.1rem; }
+.closing-line{ margin-top: 1.8rem; font-family: var(--font-hand); font-size:1.4rem; color: var(--paper-dim); opacity:0; }
+.fade-in{ animation: fadeInUp .8s ease forwards; }
+@keyframes fadeInUp{ from{ opacity:0; transform: translateY(14px);} to{ opacity:1; transform: translateY(0);} }
+
+/* confetti-ish particles */
+#confetti{ position:fixed; inset:0; pointer-events:none; z-index:600; overflow:hidden; }
+.piece{ position:absolute; top:-5%; font-size:1rem; opacity:.9; animation: fall linear forwards; }
+@keyframes fall{ to{ transform: translateY(112vh) rotate(340deg); opacity:0; } }
+
+/* long-press tooltip easter egg */
+#egg-tip{
+  position: fixed; bottom: 1.4rem; left:50%; transform: translateX(-50%) translateY(10px);
+  background: var(--paper); color: var(--ink); font-family: var(--font-hand); font-size:1.15rem;
+  padding: .6rem 1.1rem; opacity:0; pointer-events:none; transition: opacity .3s, transform .3s;
+  z-index: 700; box-shadow: 0 8px 18px rgba(0,0,0,.4); max-width: 260px; text-align:center;
+}
+#egg-tip.show{ opacity:1; transform: translateX(-50%) translateY(0); }
+
+@media (min-width: 640px){
+  .inner{ padding-top: 6.5rem; }
+  .tl-card{ width:190px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div id="grain"></div>
+<div id="vignette"></div>
+<div id="confetti"></div>
+<div id="egg-tip"></div>
+
+<div id="app">
+
+  <!-- ============ 00 / PRISTUP ============ -->
+  <section class="screen active" id="s0">
+    <div class="inner">
+      <h1>PRISTUP OGRANIČEN</h1>
+      <p class="muted" style="margin-top:.8rem;">Ovaj dosje nije namijenjen javnosti. Unesite pristupni kod koji ste dobili.</p>
+      <div class="code-field">
+        <input type="text" id="accessInput" placeholder="KOD" maxlength="12" autocomplete="off">
+        <button class="btn btn-primary" id="accessBtn">OTKLJUČAJ</button>
+      </div>
+      <div class="feedback err" id="accessFeedback"></div>
+      <button class="btn skip-btn" id="accessSkipBtn" hidden>Preskoči →</button>
+    </div>
+  </section>
+
+  <!-- ============ 01 / LANDING ============ -->
+  <section class="screen" id="s1">
+    <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">01 — UVOD</span></div>
+    <div class="inner">
+      <div class="landing-stamp-row"><span class="stamp" id="landingStamp">Povjerljivo</span></div>
+      <h1>DOSJE<br>10/27</h1>
+      <p class="subline">Ovaj dokument ne postoji u službenim evidencijama.</p>
+      <p>Ako ga čitate, netko je odlučio da zaslužujete znati što se sprema.</p>
+      <div class="btn-row"><button class="btn btn-primary" data-next="s2">Započni istragu</button></div>
+    </div>
+  </section>
+
+  <!-- ============ 02 / BRIEFING ============ -->
+  <section class="screen" id="s2">
+    <button class="back-btn" data-prev="s1">←</button>
+    <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">02 — UVOD</span></div>
+    <div class="inner">
+      <h2>Briefing</h2>
+      <div class="brief-block">
+        <p>Prije određenog broja godina pokrenut je proces koji nikad nije službeno zatvoren.</p>
+      </div>
+      <div class="brief-block">
+        <p>U međuvremenu je zabilježen velik broj zajedničkih trenutaka, nekoliko promjena adrese, više putovanja nego što se dade nabrojati, i broj svađa koji je, iz razloga nacionalne sigurnosti, i dalje klasificiran.</p>
+      </div>
+      <div class="brief-block">
+        <p>Projekt je, unatoč svemu, i dalje aktivan — i sada ulazi u završnu fazu.</p>
+      </div>
+      <p class="muted">Vaš zadatak: pratite tragove i utvrdite o čemu se zapravo radi. Ne izvodite zaključke prije nego pregledate sve dokaze.</p>
+      <p class="counter-note" id="dayCounter"></p>
+      <div class="btn-row"><button class="btn btn-primary" data-next="s3">Pregledaj prvi trag</button></div>
+    </div>
+  </section>
+
+  <!-- ============ 03 / TRAG 1 — TIMELINE ============ -->
+  <section class="screen" id="s3">
+    <button class="back-btn" data-prev="s2">←</button>
+    <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">TRAG 01 / 03</span></div>
+    <div class="inner">
+      <h2>Vremenska crta</h2>
+      <p>Pregledajte važne trenutke. Dodirnite zacrnjene dijelove da ih otkrijete. Brojevi nisu slučajni.</p>
+      <div class="tl-scroll" id="tlScroll"></div>
+      <p class="muted" style="margin-top:.4rem;">Koliko godina, prema ovoj vremenskoj crti, traje ovaj projekt?</p>
+      <div class="field">
+        <input type="text" id="tlInput" placeholder="Unesite broj…" autocomplete="off">
+        <button class="btn" id="tlBtn">Provjeri</button>
+      </div>
+      <div class="feedback" id="tlFeedback"></div>
+      <button class="btn skip-btn" id="tlSkipBtn" hidden>Preskoči pitanje →</button>
+    </div>
+  </section>
+
+  <!-- ============ 04 / TRAG 2 — UV DOKUMENT ============ -->
+  <section class="screen" id="s4">
+    <button class="back-btn" data-prev="s3">←</button>
+    <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">TRAG 02 / 03</span></div>
+    <div class="inner">
+      <h2>Klasificirani dokument</h2>
+      <p>Dio ovog dokumenta je namjerno zamračen. Prijeđite prstom ili mišem preko njega da otkrijete skriveni tekst.</p>
+      <div class="uv-doc" id="uvDoc">
+        <div class="doc-text" id="uvText"></div>
+        <div class="cover" id="uvCover"></div>
+      </div>
+      <p class="uv-hint">Na dnu dokumenta stoji šifrirana potvrda. Dekodirajte je.</p>
+      <details class="morse-key">
+        <summary>Prilog: izvod iz priručnika za dekodiranje</summary>
+        <div class="morse-grid" id="morseGrid"></div>
+      </details>
+      <div class="field">
+        <input type="text" id="morseInput" placeholder="Dekodirana riječ…" autocomplete="off">
+        <button class="btn" id="morseBtn">Provjeri</button>
+      </div>
+      <div class="feedback" id="morseFeedback"></div>
+      <button class="btn skip-btn" id="morseSkipBtn" hidden>Preskoči pitanje →</button>
+    </div>
+  </section>
+
+  <!-- ============ 05 / TRAG 3 — LOKACIJA ============ -->
+  <section class="screen" id="s5">
+    <button class="back-btn" data-prev="s4">←</button>
+    <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">TRAG 03 / 03</span></div>
+    <div class="inner">
+      <h2>Lokacija</h2>
+      <p>Sljedeći trag vodi na mjesto gdje priča nastavlja. Fotografije vjerojatno neće puno pomoći — iskreno, nitko od vas tamo još nije bio.</p>
+      <div class="polaroids" id="polaroids"></div>
+      <div class="coord-note">
+        <div class="muted" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.5rem;">Prilog: koordinate (djelomično oštećeno)</div>
+        <a href="#" id="coordLink" class="coord-link"></a>
+      </div>
+      <p class="muted">Kako se zove ovo mjesto?</p>
+      <div class="field">
+        <input type="text" id="locInput" placeholder="Unesite naziv…" autocomplete="off">
+        <button class="btn" id="locBtn">Provjeri</button>
+      </div>
+      <div class="feedback" id="locFeedback"></div>
+      <button class="btn skip-btn" id="locSkipBtn" hidden>Preskoči pitanje →</button>
+    </div>
+  </section>
+
+  <!-- ============ 06 / DOKAZI + FINALNO PITANJE ============ -->
+  <section class="screen" id="s6">
+    <button class="back-btn" data-prev="s5">←</button>
+    <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">SPAJANJE DOKAZA</span></div>
+    <div class="inner">
+      <h2>Prikupljeni dokazi</h2>
+      <p>Imate sve potrebne informacije. Vrijeme je za zaključak.</p>
+      <div class="ev-grid" id="evGrid"></div>
+      <div class="final-q">
+        <p class="muted">Što se zapravo događa?</p>
+        <div class="field">
+          <input type="text" id="finalInput" placeholder="Vaš odgovor…" autocomplete="off">
+          <button class="btn btn-primary" id="finalBtn">Otkrij istinu</button>
+        </div>
+        <div class="feedback err" id="finalFeedback"></div>
+        <button class="btn skip-btn" id="finalSkipBtn" hidden>Preskoči i otkrij →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 07 / REVEAL ============ -->
+  <section class="screen" id="s7">
+    <div class="inner">
+      <div class="correct-tag" id="rvTag">Točno</div>
+      <h1 class="reveal-title" id="rvTitle"></h1>
+      <div class="invite-card" id="rvCard">
+        <div class="heart">♥</div>
+        <div class="invite-rows" id="rvRows"></div>
+      </div>
+      <p class="closing-line" id="rvClosing"></p>
+    </div>
+  </section>
+
+</div>
+
+<script>
+/* ============================================================
+   KONFIGURACIJA — sve što ćete htjeti mijenjati je ovdje.
+   Imena, datumi, odgovori, tekstovi. Ne dirajte kod ispod
+   osim ako znate što radite.
+   ============================================================ */
+const CONFIG = {
+  accessCode: "10",                     // kod koji gosti unose na ulazu
+  maxAttempts: 5,                       // broj pokušaja prije nego se ponudi "preskoči"
+  startDate: "2017-01-01",              // datum "početka projekta" za brojač dana
+
+  timeline: [
+    { year: 2017, label: "IMG_2017.jpg", pre: "Sve je počelo jednim ", redact: "slučajnim", post: " susretom." },
+    { year: 2019, label: "IMG_2019.jpg", pre: "Preživjeli smo prvi ", redact: "zajednički", post: " stan." },
+    { year: 2021, label: "IMG_2021.jpg", pre: "Nekoliko ", redact: "nezaboravnih", post: " putovanja." },
+    { year: 2023, label: "IMG_2023.jpg", pre: "I dalje ", redact: "zajedno", post: ", unatoč svemu." },
+    { year: 2025, label: "IMG_2025.jpg", pre: "Stvari su postale ", redact: "ozbiljne", post: "." },
+    { year: 2027, label: "IMG_2027.jpg", pre: "Projekt ulazi u ", redact: "završnu", post: " fazu." }
+  ],
+  timelineAnswer: "10",                 // 2027 - 2017
+
+  uvDocText: "OBRAZAC 9-A\nNAMJERA: FORMALIZACIJA\nSTATUS: ODOBRENO\nDATUM IZVRŠENJA: 09.04.2027.\nVRIJEME: JUTARNJI TERMIN\nMJESTO IZVRŠENJA: SLUŽBENA USTANOVA\nSVJEDOCI: 2 (VIDI PRILOG)\nPOTVRDA (ŠIFRIRANO): ...- .-. .. -- . / .--- .",
+  morseCode: "...- .-. .. -- . / .--- .",  // prikazano u dokumentu — ako mijenjate morseAnswer, uskladite i ovo i uvDocText
+  morseAnswer: "vrime je",                 // rješenje zagonetke (malim slovima)
+
+  polaroids: [
+    { label: "IMG_polaroid1.jpg", caption: "Ovdje smo se prvi put izgubili." },
+    { label: "IMG_polaroid2.jpg", caption: "Iste planine, drugačiji cilj." },
+    { label: "IMG_polaroid3.jpg", caption: "Kad stignete, prepoznat ćete." }
+  ],
+  locationCoords: "43.6088843° N, 17.4943069° E",
+  locationMapsUrl: "https://www.google.com/maps/place/Blidinje+jezero/@43.6071467,17.4866451,15z/data=!3m1!4b1!4m6!3m5!1s0x134b3289f464d9bd:0xba8ad22ad2e33850!8m2!3d43.6088843!4d17.4943069!16s%2Fm%2F0n4b38t?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D",
+  locationAnswers: ["blidinje", "blidinje jezero", "jezero blidinje"], // sve varijante koje prihvaćate (mala slova)
+
+  witnessCount: "2",
+
+  finalAnswers: ["vjencanje","vjenčanje","zenimo se","ženimo se","svadba","brak","udajemo se"],
+  wrongAnswerReplies: [
+    "ŠVERC ANTIKVITETA — ODBIJENO.",
+    "TAJNI CIRKUS — ODBIJENO.",
+    "PROMJENA DRŽAVLJANSTVA — ODBIJENO.",
+    "Pokušajte ponovno. Dokazi već govore dovoljno."
+  ],
+
+  eventRows: [
+    { d: "9. 4. 2027.", l: "ujutro — matičar" },
+    { d: "9. 4. 2027.", l: "popodne — žderačina u Hajdučke vrleti" },
+    { d: "9.–11. 4. 2027.", l: "Woodlander House, Blidinje" }
+  ],
+  closingLine: "Isti ljudi. Više razloga za piće.",
+  revealTitle: "ŽENIMO SE!",
+
+  landingEasterEgg: "Znali smo da ćeš pokušati. 🕵"
+};
+
+/* ============================================================
+   LOGIKA — navigacija, zagonetke, validacija
+   ============================================================ */
+console.log("%cDOSJE 10/27", "font-size:18px;font-weight:bold;color:#a8362b;");
+console.log("Ako čitaš ovo u konzoli — znali smo da ćeš pokušati. Nastavi tražiti.");
+
+const solved = {};
+
+function normalize(str){
+  return str.toLowerCase().trim()
+    .replace(/č|ć/g,"c").replace(/š/g,"s").replace(/ž/g,"z").replace(/đ/g,"d");
+}
+
+function goTo(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  target.classList.add('active');
+  target.scrollTop = 0;
+  window.scrollTo(0,0);
+}
+
+document.querySelectorAll('[data-next]').forEach(btn=>{
+  btn.addEventListener('click', ()=> goTo(btn.dataset.next));
+});
+document.querySelectorAll('[data-prev]').forEach(btn=>{
+  btn.addEventListener('click', ()=> goTo(btn.dataset.prev));
+});
+
+/* ---------- 00 access ---------- */
+document.getElementById('accessBtn').addEventListener('click', checkAccess);
+document.getElementById('accessInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkAccess(); });
+document.getElementById('accessSkipBtn').addEventListener('click', ()=> goTo('s1'));
+let accessWrong = 0;
+function checkAccess(){
+  const val = normalize(document.getElementById('accessInput').value);
+  const fb = document.getElementById('accessFeedback');
+  if(val === normalize(CONFIG.accessCode)){
+    fb.textContent = "";
+    goTo('s1');
+  } else {
+    accessWrong++;
+    const left = CONFIG.maxAttempts - accessWrong;
+    fb.textContent = left > 0 ? `Kod nije prepoznat. Preostalo pokušaja: ${left}.` : "Kod nije prepoznat.";
+    document.getElementById('accessInput').classList.add('shake');
+    setTimeout(()=>document.getElementById('accessInput').classList.remove('shake'), 500);
+    if(accessWrong >= CONFIG.maxAttempts){
+      document.getElementById('accessSkipBtn').hidden = false;
+    }
+  }
+}
+
+/* ---------- landing easter egg: long-press on stamp ---------- */
+(function(){
+  const stamp = document.getElementById('landingStamp');
+  const tip = document.getElementById('egg-tip');
+  let timer;
+  const start = ()=>{ timer = setTimeout(()=>{
+    tip.textContent = CONFIG.landingEasterEgg;
+    tip.classList.add('show');
+    setTimeout(()=> tip.classList.remove('show'), 2600);
+  }, 600); };
+  const cancel = ()=> clearTimeout(timer);
+  stamp.addEventListener('mousedown', start);
+  stamp.addEventListener('touchstart', start);
+  ['mouseup','mouseleave','touchend'].forEach(ev => stamp.addEventListener(ev, cancel));
+})();
+
+/* ---------- 02 day counter ---------- */
+(function(){
+  const days = Math.max(0, Math.floor((Date.now() - new Date(CONFIG.startDate)) / 86400000));
+  document.getElementById('dayCounter').textContent = `Dana od početka projekta: ${days.toLocaleString('hr-HR')}.`;
+})();
+
+/* ---------- 03 timeline ---------- */
+(function(){
+  const wrap = document.getElementById('tlScroll');
+  CONFIG.timeline.forEach(item=>{
+    const card = document.createElement('div');
+    card.className = 'tl-card';
+    card.innerHTML = `
+      <div class="photo-slot" data-label="${item.label}"></div>
+      <div class="tl-year">${item.year}</div>
+      <div class="tl-cap">${item.pre}<span class="redact">${item.redact}</span>${item.post}</div>
+    `;
+    wrap.appendChild(card);
+  });
+  wrap.querySelectorAll('.redact').forEach(r=>{
+    r.addEventListener('click', ()=> r.classList.toggle('revealed'));
+  });
+
+  document.getElementById('tlBtn').addEventListener('click', checkTimeline);
+  document.getElementById('tlInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkTimeline(); });
+  document.getElementById('tlSkipBtn').addEventListener('click', ()=>{
+    solved.years = CONFIG.timelineAnswer;
+    goTo('s4');
+  });
+  let tlWrong = 0;
+  function checkTimeline(){
+    const val = normalize(document.getElementById('tlInput').value).replace(/[^0-9a-z]/g,'');
+    const fb = document.getElementById('tlFeedback');
+    if(val.includes(CONFIG.timelineAnswer)){
+      fb.textContent = "Točno. Deset godina, i broje se dalje.";
+      fb.className = "feedback ok";
+      solved.years = CONFIG.timelineAnswer;
+      setTimeout(()=> goTo('s4'), 900);
+    } else {
+      tlWrong++;
+      const left = CONFIG.maxAttempts - tlWrong;
+      fb.textContent = left > 0 ? `Nije to. Pogledajte ponovno godine na vrhu i na dnu crte. Preostalo pokušaja: ${left}.` : "Nije to.";
+      fb.className = "feedback err";
+      if(tlWrong >= CONFIG.maxAttempts){
+        document.getElementById('tlSkipBtn').hidden = false;
+      }
+    }
+  }
+})();
+
+/* ---------- 04 UV document ---------- */
+(function(){
+  document.getElementById('uvText').textContent = CONFIG.uvDocText;
+  const doc = document.getElementById('uvDoc');
+  const cover = document.getElementById('uvCover');
+  function setPos(x,y){
+    const rect = doc.getBoundingClientRect();
+    cover.style.setProperty('--mx', (x - rect.left) + 'px');
+    cover.style.setProperty('--my', (y - rect.top) + 'px');
+  }
+  doc.addEventListener('mousemove', e=> setPos(e.clientX, e.clientY));
+  doc.addEventListener('touchmove', e=>{
+    const t = e.touches[0];
+    setPos(t.clientX, t.clientY);
+  }, {passive:true});
+
+  const MORSE_TABLE = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..'};
+  document.getElementById('morseGrid').innerHTML = Object.entries(MORSE_TABLE).map(([l,c]) => `<span>${l} ${c}</span>`).join('');
+
+  document.getElementById('morseBtn').addEventListener('click', checkMorse);
+  document.getElementById('morseInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkMorse(); });
+  document.getElementById('morseSkipBtn').addEventListener('click', ()=>{
+    solved.code = CONFIG.morseAnswer.toUpperCase();
+    goTo('s5');
+  });
+  let morseWrong = 0;
+  function checkMorse(){
+    const val = normalize(document.getElementById('morseInput').value);
+    const fb = document.getElementById('morseFeedback');
+    if(val === normalize(CONFIG.morseAnswer)){
+      fb.textContent = "Potvrđeno.";
+      fb.className = "feedback ok";
+      solved.code = CONFIG.morseAnswer.toUpperCase();
+      setTimeout(()=> goTo('s5'), 800);
+    } else {
+      morseWrong++;
+      const left = CONFIG.maxAttempts - morseWrong;
+      fb.textContent = left > 0 ? `To ne odgovara šifri. Preostalo pokušaja: ${left}.` : "To ne odgovara šifri.";
+      fb.className = "feedback err";
+      if(morseWrong >= CONFIG.maxAttempts){
+        document.getElementById('morseSkipBtn').hidden = false;
+      }
+    }
+  }
+})();
+
+/* ---------- 05 location ---------- */
+(function(){
+  const wrap = document.getElementById('polaroids');
+  CONFIG.polaroids.forEach(p=>{
+    const el = document.createElement('div');
+    el.className = 'pol';
+    el.innerHTML = `<div class="photo-slot" data-label="${p.label}"></div><div class="pol-cap">${p.caption}</div>`;
+    wrap.appendChild(el);
+  });
+
+  const coordLink = document.getElementById('coordLink');
+  coordLink.textContent = CONFIG.locationCoords;
+  coordLink.href = CONFIG.locationMapsUrl;
+  coordLink.target = "_blank";
+  coordLink.rel = "noopener noreferrer";
+
+  document.getElementById('locBtn').addEventListener('click', checkLoc);
+  document.getElementById('locInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkLoc(); });
+  document.getElementById('locSkipBtn').addEventListener('click', ()=>{
+    solved.location = "Blidinje";
+    buildEvidence();
+    goTo('s6');
+  });
+  let locWrong = 0;
+  function checkLoc(){
+    const val = normalize(document.getElementById('locInput').value);
+    const fb = document.getElementById('locFeedback');
+    if(CONFIG.locationAnswers.some(a => normalize(a) === val)){
+      fb.textContent = "Prepoznato.";
+      fb.className = "feedback ok";
+      solved.location = document.getElementById('locInput').value.trim();
+      setTimeout(()=>{ buildEvidence(); goTo('s6'); }, 800);
+    } else {
+      locWrong++;
+      const left = CONFIG.maxAttempts - locWrong;
+      fb.textContent = left > 0 ? `Nije to mjesto. Pogledajte koordinate pažljivije. Preostalo pokušaja: ${left}.` : "Nije to mjesto.";
+      fb.className = "feedback err";
+      if(locWrong >= CONFIG.maxAttempts){
+        document.getElementById('locSkipBtn').hidden = false;
+      }
+    }
+  }
+})();
+
+/* ---------- 06 evidence + final answer ---------- */
+function buildEvidence(){
+  const grid = document.getElementById('evGrid');
+  const items = [
+    { ic: "🗓️", val: solved.years || "10", lbl: "godina" },
+    { ic: "✒️", val: "1", lbl: "potpis" },
+    { ic: "👥", val: CONFIG.witnessCount, lbl: "svjedoka" },
+    { ic: "📅", val: "9.4.2027.", lbl: "datum" },
+    { ic: "📡", val: (solved.code || CONFIG.morseAnswer).toUpperCase(), lbl: "potvrda" },
+    { ic: "📍", val: solved.location || "?", lbl: "lokacija" }
+  ];
+  grid.innerHTML = items.map(i => `
+    <div class="ev-card"><div class="ic">${i.ic}</div><div class="val">${i.val}</div><div class="lbl">${i.lbl}</div></div>
+  `).join('');
+}
+
+document.getElementById('finalBtn').addEventListener('click', checkFinal);
+document.getElementById('finalInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkFinal(); });
+document.getElementById('finalSkipBtn').addEventListener('click', triggerReveal);
+let finalWrong = 0;
+function checkFinal(){
+  const val = normalize(document.getElementById('finalInput').value);
+  const fb = document.getElementById('finalFeedback');
+  const input = document.getElementById('finalInput');
+  if(CONFIG.finalAnswers.some(a => normalize(a) === val)){
+    fb.textContent = "";
+    triggerReveal();
+  } else {
+    finalWrong++;
+    const left = CONFIG.maxAttempts - finalWrong;
+    const base = CONFIG.wrongAnswerReplies[Math.floor(Math.random()*CONFIG.wrongAnswerReplies.length)];
+    fb.textContent = left > 0 ? `${base} Preostalo pokušaja: ${left}.` : base;
+    fb.className = "feedback err";
+    input.classList.add('shake');
+    setTimeout(()=> input.classList.remove('shake'), 500);
+    if(finalWrong >= CONFIG.maxAttempts){
+      document.getElementById('finalSkipBtn').hidden = false;
+    }
+  }
+}
+
+/* ---------- 07 reveal ---------- */
+function triggerReveal(){
+  goTo('s7');
+  document.getElementById('rvTitle').textContent = CONFIG.revealTitle;
+  document.getElementById('rvRows').innerHTML = CONFIG.eventRows.map(r => `
+    <div class="invite-row"><div class="d">${r.d}</div><div class="l">${r.l}</div></div>
+  `).join('');
+  document.getElementById('rvClosing').textContent = CONFIG.closingLine;
+
+  const tag = document.getElementById('rvTag');
+  const title = document.getElementById('rvTitle');
+  const card = document.getElementById('rvCard');
+  const closing = document.getElementById('rvClosing');
+  setTimeout(()=> tag.classList.add('fade-in'), 150);
+  setTimeout(()=> title.classList.add('fade-in'), 550);
+  setTimeout(()=> card.classList.add('fade-in'), 1000);
+  setTimeout(()=> closing.classList.add('fade-in'), 1500);
+  setTimeout(spawnConfetti, 900);
+}
+
+function spawnConfetti(){
+  const host = document.getElementById('confetti');
+  const symbols = ['♥','✦','◆','—'];
+  for(let i=0; i<28; i++){
+    const p = document.createElement('span');
+    p.className = 'piece';
+    p.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    p.style.left = Math.random()*100 + 'vw';
+    p.style.color = Math.random() > 0.5 ? '#a8362b' : '#c7a15b';
+    p.style.animationDuration = (2.4 + Math.random()*1.8) + 's';
+    p.style.animationDelay = (Math.random()*1.2) + 's';
+    p.style.fontSize = (0.7 + Math.random()*0.9) + 'rem';
+    host.appendChild(p);
+    setTimeout(()=> p.remove(), 5000);
+  }
+}
+</script>
+</body>
+</html>
