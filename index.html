@@ -98,6 +98,23 @@ body{
   font-size:.72rem; opacity:.92; user-select:none;
   filter: drop-shadow(0 0 1px rgba(168,54,43,.4));
 }
+.stamp-circle{
+  display:inline-block; color: var(--red-bright); transform: rotate(-9deg); opacity:.94;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.35)); cursor:default; user-select:none;
+}
+.stamp-circle svg{ display:block; width: 118px; height:118px; }
+
+/* ---------- decorative stacked documents (landing corner) ---------- */
+.doc-stack{ position:absolute; left:1.2rem; bottom:1.3rem; width:86px; height:58px; z-index:0; opacity:.8; pointer-events:none; }
+.doc-stack span{ position:absolute; inset:0; border:1px solid rgba(0,0,0,.3); box-shadow: 0 5px 12px rgba(0,0,0,.45); }
+.doc-stack span:nth-child(1){ transform: rotate(-7deg) translateY(6px); background:#c9b98e; }
+.doc-stack span:nth-child(2){ transform: rotate(5deg) translateY(3px); background:#dccca3; }
+.doc-stack span:nth-child(3){ transform: rotate(-2deg); background:#e6d8b3; }
+.doc-stack span:nth-child(4){ transform: rotate(3deg) translateY(-3px); background: var(--paper); }
+.doc-stack span:last-child::after{
+  content:''; position:absolute; top:-6px; left:12px; width:20px; height:9px;
+  background: var(--red-bright); border-radius: 1px 1px 0 0;
+}
 
 /* ---------- typography ---------- */
 h1{ font-family: var(--font-display); font-weight:600; letter-spacing:.01em; line-height:1.05; }
@@ -199,16 +216,25 @@ p + p{ margin-top: .85rem; }
 .tl-year{ font-family: var(--font-display); color: var(--gold); font-size:1rem; letter-spacing:.05em; margin-bottom:.3rem; }
 .tl-cap{ font-size:.82rem; line-height:1.45; color: var(--paper-dim); }
 .redact{
-  background: var(--ink); color: transparent; cursor:pointer; padding: 0 3px; border-radius:1px;
-  transition: color .3s ease, background .3s ease; user-select:none;
+  background: var(--paper); color: transparent; cursor:pointer; padding: 0 4px; border-radius:1px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  transition: color .3s ease, background .3s ease, box-shadow .3s ease; user-select:none;
 }
-.redact.revealed{ background:transparent; color: var(--paper); text-decoration: underline dotted var(--red-bright); }
+.redact.revealed{ background:transparent; color: var(--paper); box-shadow:none; text-decoration: underline dotted var(--red-bright); }
 
 /* ================= UV DOCUMENT (screen 4) ================= */
 .uv-doc{
   position:relative; background: var(--paper); color: var(--ink); border-radius:1px;
   padding: 1.6rem 1.4rem; margin-top:1rem; overflow:hidden; box-shadow: 0 12px 30px rgba(0,0,0,.5);
   touch-action:none;
+}
+.uv-doc::before{
+  content:''; position:absolute; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(circle at 90% 10%, rgba(120,88,40,.20), transparent 42%),
+    radial-gradient(circle at 6% 94%, rgba(120,88,40,.14), transparent 38%),
+    radial-gradient(circle at 40% 50%, rgba(90,70,30,.06), transparent 60%);
+  mix-blend-mode: multiply;
 }
 .uv-doc .doc-text{ font-size:.86rem; line-height:1.85; letter-spacing:.02em; position:relative; z-index:1; white-space:pre-line; }
 .uv-doc .cover{
@@ -243,6 +269,72 @@ p + p{ margin-top: .85rem; }
 .morse-key summary:hover{ color: var(--paper); }
 .morse-key[open] summary{ color: var(--gold); }
 .morse-grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap:.4rem .6rem; padding: .2rem 0 1rem; font-size:.72rem; color: var(--paper-dim); font-family: var(--font-doc); }
+
+/* ---------- scramble puzzle (letter tiles) ---------- */
+.scramble-slots{ display:flex; flex-wrap:wrap; gap:.4rem; margin: 1.4rem 0 1.2rem; }
+.scramble-slots .slot{
+  width:34px; height:40px; border-bottom:2px solid var(--paper-dim);
+  display:flex; align-items:center; justify-content:center;
+  font-family: var(--font-display); font-size:1.05rem; color: var(--gold);
+}
+.scramble-pool{ display:flex; flex-wrap:wrap; gap:.6rem; }
+.tile{
+  width:34px; height:40px; display:flex; align-items:center; justify-content:center;
+  background: var(--paper); color: var(--ink); font-weight:700; font-size:1rem;
+  border:1px solid rgba(0,0,0,.25); box-shadow: 0 4px 8px rgba(0,0,0,.4);
+  cursor:pointer; user-select:none; transition: filter .15s ease, opacity .2s ease;
+}
+.tile:nth-child(3n){ font-family: var(--font-doc); }
+.tile:hover{ filter: brightness(1.1); }
+.tile.placed{ opacity:0; pointer-events:none; }
+
+/* ---------- radio puzzle ---------- */
+.radio{
+  margin-top: 1.4rem; background: linear-gradient(160deg, #3a2c1e, #241a10);
+  border: 1px solid rgba(0,0,0,.5); border-radius: 10px; padding: 1.3rem 1.1rem 1.5rem;
+  box-shadow: 0 16px 34px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.04);
+}
+.radio-power-row{ display:flex; justify-content:center; margin-bottom: 1rem; }
+.radio-power{ font-size:.72rem; padding:.6rem 1.2rem; }
+.radio-power.on{ border-color:#8fd18a; color:#8fd18a; }
+.radio-power.on:hover{ background:#8fd18a; color:#0c1410; }
+.radio-display, .knob-face{ transition: opacity .3s ease, filter .3s ease; }
+.radio:not(.on) .radio-display, .radio:not(.on) .knob-face{ opacity:.5; filter: grayscale(.6); }
+.radio-display{
+  background: #0c1410; border: 1px solid rgba(0,0,0,.6); border-radius: 4px;
+  padding: .5rem .6rem; margin-bottom: 1rem; box-shadow: inset 0 2px 6px rgba(0,0,0,.6);
+  display:flex; align-items:center; justify-content:space-between; gap:.5rem;
+}
+.radio-display-value{ flex:1; text-align:center; }
+.freq-step{
+  flex-shrink:0; width:32px; height:32px; display:flex; align-items:center; justify-content:center;
+  background:none; border:1px solid rgba(143,209,138,.35); border-radius:3px; color:#8fd18a;
+  font-family: var(--font-display); font-size:.85rem; line-height:1; cursor:pointer;
+  transition: background .2s ease;
+}
+.freq-step:hover{ background: rgba(143,209,138,.15); }
+.freq-step:active{ background: rgba(143,209,138,.3); }
+#radioFreq{ font-family: var(--font-display); font-size: 1.7rem; color: #8fd18a; letter-spacing:.04em; text-shadow: 0 0 6px rgba(143,209,138,.6); }
+.radio-unit{ font-family: var(--font-doc); font-size:.75rem; color:#5f8a5c; margin-left:.4rem; }
+.radio-grille{
+  height: 42px; margin-bottom: 1.2rem; border-radius: 4px;
+  background-image: repeating-linear-gradient(90deg, rgba(0,0,0,.55) 0 3px, transparent 3px 8px);
+  background-color: #17110a;
+}
+.radio-controls{ display:flex; justify-content:center; gap: 1.5rem; }
+.radio-knob-wrap{ display:flex; flex-direction:column; align-items:center; gap:.5rem; }
+.knob-face{
+  width: 74px; height:74px; border-radius:50%; position:relative; touch-action:none;
+  background: radial-gradient(circle at 35% 30%, #d8b878, #8a6a34 65%, #5c4420 100%);
+  box-shadow: 0 4px 10px rgba(0,0,0,.6), inset 0 0 0 2px rgba(0,0,0,.25);
+}
+.knob{ position:absolute; inset:0; border-radius:50%; cursor: grab; }
+.knob::after{
+  content:''; position:absolute; top:6px; left:50%; width:3px; height:22px;
+  background: #241a10; transform: translateX(-50%); border-radius:2px;
+}
+.knob:active{ cursor: grabbing; }
+.knob-label{ font-family: var(--font-display); font-size:.66rem; letter-spacing:.1em; color: var(--paper-dim); text-transform:uppercase; }
 
 /* ================= EVIDENCE (screen 6) ================= */
 .ev-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap: .9rem; margin-top:1.4rem; }
@@ -320,7 +412,26 @@ p + p{ margin-top: .85rem; }
   <section class="screen" id="s1">
     <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">01 — UVOD</span></div>
     <div class="inner">
-      <div class="landing-stamp-row"><span class="stamp" id="landingStamp">Povjerljivo</span></div>
+      <div class="landing-stamp-row">
+        <div class="stamp-circle" id="landingStamp" aria-hidden="true">
+          <svg viewBox="0 0 200 200">
+            <defs>
+              <filter id="stampRough" x="-20%" y="-20%" width="140%" height="140%">
+                <feTurbulence type="fractalNoise" baseFrequency="0.045" numOctaves="2" seed="7" result="noise"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="5"/>
+              </filter>
+            </defs>
+            <g filter="url(#stampRough)" fill="none" stroke="currentColor">
+              <circle cx="100" cy="100" r="92" stroke-width="5"/>
+              <circle cx="100" cy="100" r="78" stroke-width="2.5"/>
+              <text x="100" y="86" text-anchor="middle" fill="currentColor" stroke="none" font-family="Oswald, sans-serif" font-size="19" font-weight="600" letter-spacing="2">POVJERLJIVO</text>
+              <line x1="52" y1="100" x2="148" y2="100" stroke-width="2"/>
+              <text x="100" y="121" text-anchor="middle" fill="currentColor" stroke="none" font-family="Oswald, sans-serif" font-size="15" font-weight="500" letter-spacing="3">DOSJE 10/27</text>
+              <text x="100" y="144" text-anchor="middle" fill="currentColor" stroke="none" font-family="'Special Elite', monospace" font-size="9" letter-spacing="1">NE PROSLJEĐUJTE</text>
+            </g>
+          </svg>
+        </div>
+      </div>
       <h1>DOSJE<br>10/27</h1>
       <p class="subline">Ovaj dokument ne postoji u službenim evidencijama.</p>
       <p>Ako ga čitate, netko je odlučio da zaslužujete znati što se sprema.</p>
@@ -355,7 +466,7 @@ p + p{ margin-top: .85rem; }
     <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">TRAG 01 / 03</span></div>
     <div class="inner">
       <h2>Vremenska crta</h2>
-      <p>Pregledajte važne trenutke. Dodirnite zacrnjene dijelove da ih otkrijete. Brojevi nisu slučajni.</p>
+      <p>Pregledajte važne trenutke. Dodirnite bijele oznake da otkrijete skriveni tekst. Brojevi nisu slučajni.</p>
       <div class="tl-scroll" id="tlScroll"></div>
       <p class="muted" style="margin-top:.4rem;">Koliko godina, prema ovoj vremenskoj crti, traje ovaj projekt?</p>
       <div class="field">
@@ -382,6 +493,7 @@ p + p{ margin-top: .85rem; }
       <details class="morse-key">
         <summary>Prilog: izvod iz priručnika za dekodiranje</summary>
         <div class="morse-grid" id="morseGrid"></div>
+        <div class="muted" style="font-size:.7rem; padding-bottom:.8rem;">Znak "/" označava razmak između riječi.</div>
       </details>
       <div class="field">
         <input type="text" id="morseInput" placeholder="Dekodirana riječ…" autocomplete="off">
@@ -392,9 +504,66 @@ p + p{ margin-top: .85rem; }
     </div>
   </section>
 
+  <!-- ============ 04b / BONUS — STARI RADIO ============ -->
+  <section class="screen" id="s4b">
+    <button class="back-btn" data-prev="s4">←</button>
+    <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">PRESRETNUTA FREKVENCIJA</span></div>
+    <div class="inner">
+      <h2>Prilog uz dokument</h2>
+      <p>Dokument spominje snimku svjedoka. Pronađena je stara frekvencija — uključite radio, uhvatite signal, pa podesite brzinu i visinu tona da razumijete što se čuje.</p>
+
+      <div class="radio">
+        <div class="radio-power-row"><button class="btn radio-power" id="radioPower">Uključi radio</button></div>
+        <div class="radio-display">
+          <button class="freq-step" id="freqDown" type="button" aria-label="Smanji frekvenciju za 0.1 MHz">◀</button>
+          <div class="radio-display-value"><span id="radioFreq">87.5</span><span class="radio-unit">MHz</span></div>
+          <button class="freq-step" id="freqUp" type="button" aria-label="Povećaj frekvenciju za 0.1 MHz">▶</button>
+        </div>
+        <div class="radio-grille" aria-hidden="true"></div>
+        <div class="radio-controls">
+          <div class="radio-knob-wrap">
+            <div class="knob-face" id="tuneKnobFace"><div class="knob" id="tuneKnob"></div></div>
+            <div class="knob-label">Stanica</div>
+          </div>
+          <div class="radio-knob-wrap">
+            <div class="knob-face" id="speedKnobFace"><div class="knob" id="speedKnob"></div></div>
+            <div class="knob-label">Brzina</div>
+          </div>
+          <div class="radio-knob-wrap">
+            <div class="knob-face" id="pitchKnobFace"><div class="knob" id="pitchKnob"></div></div>
+            <div class="knob-label">Visina</div>
+          </div>
+        </div>
+      </div>
+
+      <p class="muted" style="margin-top:1.2rem;">Tko se čuje na frekvenciji? Upišite oba imena (odvojena zarezom).</p>
+      <div class="field">
+        <input type="text" id="radioInput" placeholder="Ime, ime…" autocomplete="off">
+        <button class="btn" id="radioBtn">Provjeri</button>
+      </div>
+      <div class="feedback" id="radioFeedback"></div>
+      <button class="btn skip-btn" id="radioSkipBtn" hidden>Preskoči pitanje →</button>
+    </div>
+  </section>
+
+  <!-- ============ 04b / BONUS — PRESRETNUTA PORUKA ============ -->
+  <section class="screen" id="s5b">
+    <button class="back-btn" data-prev="s4b">←</button>
+    <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">PRESRETNUTA PORUKA</span></div>
+    <div class="inner">
+      <h2>Presretnuta poruka</h2>
+      <p>Dio komunikacije je presretnut, ali raspao se u prijenosu. Kliknite slova redom da ih posložite.</p>
+      <div class="scramble-slots" id="scrambleSlots"></div>
+      <div class="scramble-pool" id="scramblePool"></div>
+      <div class="btn-row"><button class="btn" id="scrambleReset">Poništi</button></div>
+      <div class="feedback" id="scrambleFeedback"></div>
+      <button class="btn skip-btn" id="scrambleSkipBtn" hidden>Preskoči pitanje →</button>
+    </div>
+  </section>
+
   <!-- ============ 05 / TRAG 3 — LOKACIJA ============ -->
   <section class="screen" id="s5">
-    <button class="back-btn" data-prev="s4">←</button>
+    <button class="back-btn" data-prev="s5b">←</button>
     <div class="topbar"><span class="proj">DOSJE 10/27</span><span class="stage">TRAG 03 / 03</span></div>
     <div class="inner">
       <h2>Lokacija</h2>
@@ -481,11 +650,26 @@ const CONFIG = {
   ],
   locationCoords: "43.6088843° N, 17.4943069° E",
   locationMapsUrl: "https://www.google.com/maps/place/Blidinje+jezero/@43.6071467,17.4866451,15z/data=!3m1!4b1!4m6!3m5!1s0x134b3289f464d9bd:0xba8ad22ad2e33850!8m2!3d43.6088843!4d17.4943069!16s%2Fm%2F0n4b38t?entry=ttu&g_ep=EgoyMDI2MDkwMi4wIKXMDSoASAFQAw%3D%3D",
-  locationAnswers: ["blidinje", "blidinje jezero", "jezero blidinje"], // sve varijante koje prihvaćate (mala slova)
+  locationAnswers: ["blidinje", "blidinje jezero", "jezero blidinje", "jezero", "risovac", "risovac blidinje", "blidinje risovac", "bosna", "bosna i hercegovina", "bih"], // sve varijante koje prihvaćate (mala slova)
 
   witnessCount: "2",
 
-  finalAnswers: ["vjencanje","vjenčanje","zenimo se","ženimo se","svadba","brak","udajemo se"],
+  scrambleAnswer: "ŽDERAČINA",           // riječ za slagalicu presretnute poruke (velika slova)
+
+  radioStations: [
+    { key: "mateo", label: "MATEO", freq: 28, audioData: "data:audio/mp3;base64,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//NkxL0aekH8InmGBKqqqqqqqqpMQU1FMy4xMDCqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NkxHwAAANIAAAAAKqqqqqqqqpMQU1FMy4xMDCqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NkxHwAAANIAAAAAKqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq//NkxAAAAANIAAAAAExBTUVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV", placeholderFreqs: [440, 554] },
+    { key: "ivana", label: "IVANA", freq: 74, audioData: "data:audio/mp3;base64,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Le8jx3R3QKyUYWhAYRXSLlYTG6U0phKrwnhGbwnyfLQOGIOCIXWXnM2ScrAJMky5wGQBkIja2AAWkyQzYDaNXsrxSOev8spl1GJ03hOuR2EexGvnOGaPGfPqrOUnQ6SmU+ymh5HMUlvJmh0n//NkxPkifCoMKEDNsUpjXBUS6dKZuC6sSipMQU1FMy4xMDCqqqqqqqooANBN7NYl5PIECUQWDDiulqUWogSBCiiUaSSzSkvxlJBpVLb/rYx3dEGjTfxlJJZiv6sVRTUpd3f+5iqKVF//MVE3RTFUU5pVFq7+TFEspJLM/9FJiqIk7uRJ5UCBG8Zb+zKSSooa//NkxPIezCIdZBhHqSxlJsJZSVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxOobSAIBjBjGuVVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxAAAAANIAAAAAExBTUVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVMQU1FMy4xMDBVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV//NkxHwAAANIAAAAAFVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV", placeholderFreqs: [330, 392] }
+  ],
+  // audioData: null = koristi se placeholder zvuk. Zamijenite s "data:audio/mp3;base64,...."
+  // kad dobijete pravu snimku — ja mogu enkodirati vaš fajl u taj format.
+  radioCapture: 6,                       // koliko blizu (0-100 skala) treba biti da se stanica čuje
+  radioRateDefault: 1.4,                 // početna (ubrzana) brzina — koliko brzo prolazi kroz snimku
+  radioRateRange: [0.6, 1.8],
+  radioPitchDefault: 1.3,                // početna (viša) visina tona — potpuno neovisna o brzini
+  radioPitchRange: [0.6, 1.8],
+  radioAnswer: ["mateo", "ivana"],       // imena koja gost treba prepoznati i upisati (malim slovima)
+
+  finalAnswers: ["vjencanje","vjenčanje","zenimo se","ženimo se","svadba","brak","udajemo se","udaja","pir","zenidba","ženidba","maticar","matičar","vjencamo se","vjenčamo se"],
   wrongAnswerReplies: [
     "ŠVERC ANTIKVITETA — ODBIJENO.",
     "TAJNI CIRKUS — ODBIJENO.",
@@ -498,7 +682,7 @@ const CONFIG = {
     { d: "9. 4. 2027.", l: "popodne — žderačina u Hajdučke vrleti" },
     { d: "9.–11. 4. 2027.", l: "Woodlander House, Blidinje" }
   ],
-  closingLine: "Isti ljudi. Više razloga za piće.",
+  closingLine: "Znali ste da hoćemo. Sad znamo i mi. Test vožnja gotova, ostaje samo papir.",
   revealTitle: "ŽENIMO SE!",
 
   landingEasterEgg: "Znali smo da ćeš pokušati. 🕵"
@@ -517,12 +701,16 @@ function normalize(str){
     .replace(/č|ć/g,"c").replace(/š/g,"s").replace(/ž/g,"z").replace(/đ/g,"d");
 }
 
+let currentScreenId = null;
 function goTo(id){
+  const prevId = currentScreenId;
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById(id);
   target.classList.add('active');
   target.scrollTop = 0;
   window.scrollTo(0,0);
+  currentScreenId = id;
+  document.dispatchEvent(new CustomEvent('screenchange', { detail: { from: prevId, to: id } }));
 }
 
 document.querySelectorAll('[data-next]').forEach(btn=>{
@@ -631,11 +819,15 @@ function checkAccess(){
     cover.style.setProperty('--mx', (x - rect.left) + 'px');
     cover.style.setProperty('--my', (y - rect.top) + 'px');
   }
-  doc.addEventListener('mousemove', e=> setPos(e.clientX, e.clientY));
-  doc.addEventListener('touchmove', e=>{
+  const TOUCH_LIFT = 70; // pomak prema gore na dodir, da prst ne prekriva otkriveni tekst
+  function handleTouch(e){
     const t = e.touches[0];
-    setPos(t.clientX, t.clientY);
-  }, {passive:true});
+    if(!t) return;
+    setPos(t.clientX, t.clientY - TOUCH_LIFT);
+  }
+  doc.addEventListener('mousemove', e=> setPos(e.clientX, e.clientY));
+  doc.addEventListener('touchstart', handleTouch, {passive:true});
+  doc.addEventListener('touchmove', handleTouch, {passive:true});
 
   const MORSE_TABLE = {A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..'};
   document.getElementById('morseGrid').innerHTML = Object.entries(MORSE_TABLE).map(([l,c]) => `<span>${l} ${c}</span>`).join('');
@@ -644,17 +836,17 @@ function checkAccess(){
   document.getElementById('morseInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkMorse(); });
   document.getElementById('morseSkipBtn').addEventListener('click', ()=>{
     solved.code = CONFIG.morseAnswer.toUpperCase();
-    goTo('s5');
+    goTo('s4b');
   });
   let morseWrong = 0;
   function checkMorse(){
-    const val = normalize(document.getElementById('morseInput').value);
+    const val = normalize(document.getElementById('morseInput').value).replace(/\s+/g,'');
     const fb = document.getElementById('morseFeedback');
-    if(val === normalize(CONFIG.morseAnswer)){
+    if(val === normalize(CONFIG.morseAnswer).replace(/\s+/g,'')){
       fb.textContent = "Potvrđeno.";
       fb.className = "feedback ok";
       solved.code = CONFIG.morseAnswer.toUpperCase();
-      setTimeout(()=> goTo('s5'), 800);
+      setTimeout(()=> goTo('s4b'), 800);
     } else {
       morseWrong++;
       const left = CONFIG.maxAttempts - morseWrong;
@@ -662,6 +854,264 @@ function checkAccess(){
       fb.className = "feedback err";
       if(morseWrong >= CONFIG.maxAttempts){
         document.getElementById('morseSkipBtn').hidden = false;
+      }
+    }
+  }
+})();
+
+/* ---------- 04b radio puzzle ---------- */
+(function(){
+  let audioCtx = null, noiseSource = null, noiseGain = null, masterGain = null;
+  let started = false, ready = false, powerOn = false;
+  let tuneValue = 50, rateValue = CONFIG.radioRateDefault, pitchValue = CONFIG.radioPitchDefault;
+  const freqDisplay = document.getElementById('radioFreq');
+  const radioEl = document.querySelector('.radio');
+  const powerBtn = document.getElementById('radioPower');
+
+  function fmDisplay(v){
+    return (87.5 + (v/100) * (108.0 - 87.5)).toFixed(1);
+  }
+
+  // sirovi placeholder ton (Float32Array) — zamijenjuje se pravom snimkom čim CONFIG.radioStations[i].audioData bude postavljen
+  function makePlaceholderData(sampleRate, freqs){
+    const dur = 1.1;
+    const len = Math.floor(dur * sampleRate);
+    const data = new Float32Array(len);
+    const seg = Math.floor(len / freqs.length);
+    freqs.forEach((f, idx)=>{
+      for(let i=0; i<seg; i++){
+        const t = i / sampleRate;
+        const env = Math.sin(Math.PI * (i/seg));
+        data[idx*seg + i] = Math.sin(2*Math.PI*f*t) * 0.5 * env;
+      }
+    });
+    return data;
+  }
+
+  function dataUriToArrayBuffer(dataUri){
+    const base64 = dataUri.slice(dataUri.indexOf(',') + 1);
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for(let i = 0; i < binary.length; i++){
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return bytes.buffer;
+  }
+
+  async function loadStationData(ctx, st){
+    if(st.audioData){
+      try{
+        const arr = dataUriToArrayBuffer(st.audioData);
+        const decoded = await ctx.decodeAudioData(arr);
+        return decoded.getChannelData(0);
+      } catch(err){
+        console.warn('Neuspjelo dekodiranje zvuka za', st.key, err);
+      }
+    }
+    return makePlaceholderData(ctx.sampleRate, st.placeholderFreqs || [440, 550]);
+  }
+
+  // granularni "glas": čita snimku u malim isprepletenim zrnima, tako da brzina (koliko
+  // brzo napreduje kroz snimku) i visina tona (koliko brzo se čita UNUTAR svakog zrna)
+  // ostaju potpuno neovisne jedna o drugoj — za razliku od običnog playbackRate koji ih veže.
+  function createGranularVoice(ctx, data){
+    const grainSize = Math.floor(ctx.sampleRate * 0.09);
+    const overlap = 4;
+    const hopOut = Math.max(1, Math.floor(grainSize / overlap));
+    const N = data.length;
+    const node = ctx.createScriptProcessor(1024, 1, 1);
+    let sourcePos = 0, tilNext = 0, grains = [];
+    node._rate = 1; node._pitch = 1;
+    function sampleAt(pos){
+      const p = ((pos % N) + N) % N;
+      const i0 = Math.floor(p), i1 = (i0+1) % N, frac = p - i0;
+      return data[i0]*(1-frac) + data[i1]*frac;
+    }
+    node.onaudioprocess = (e)=>{
+      const out = e.outputBuffer.getChannelData(0);
+      const rate = node._rate, pitch = node._pitch;
+      for(let i=0; i<out.length; i++){
+        tilNext--;
+        if(tilNext <= 0){
+          tilNext = hopOut;
+          grains.push({ readPos: sourcePos, age: 0 });
+          sourcePos += hopOut * rate;
+        }
+        let s = 0;
+        for(let g = grains.length-1; g>=0; g--){
+          const gr = grains[g];
+          const env = 0.5 - 0.5*Math.cos(2*Math.PI*gr.age/grainSize);
+          s += sampleAt(gr.readPos) * env;
+          gr.readPos += pitch;
+          gr.age++;
+          if(gr.age >= grainSize) grains.splice(g,1);
+        }
+        out[i] = s/overlap;
+      }
+    };
+    return node;
+  }
+
+  async function initAudio(){
+    if(started) return;
+    started = true;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    masterGain = audioCtx.createGain();
+    masterGain.gain.value = powerOn ? 1 : 0;
+    masterGain.connect(audioCtx.destination);
+
+    const bufSize = audioCtx.sampleRate * 2;
+    const noiseBuf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    const nd = noiseBuf.getChannelData(0);
+    for(let i=0; i<bufSize; i++) nd[i] = Math.random()*2-1;
+    noiseSource = audioCtx.createBufferSource();
+    noiseSource.buffer = noiseBuf; noiseSource.loop = true;
+    noiseGain = audioCtx.createGain(); noiseGain.gain.value = 0.22;
+    noiseSource.connect(noiseGain).connect(masterGain);
+    noiseSource.start();
+
+    for(const st of CONFIG.radioStations){
+      const data = await loadStationData(audioCtx, st);
+      const voice = createGranularVoice(audioCtx, data);
+      voice._rate = rateValue; voice._pitch = pitchValue;
+      const gain = audioCtx.createGain(); gain.gain.value = 0;
+      voice.connect(gain).connect(masterGain);
+      st._voice = voice; st._gain = gain;
+    }
+    ready = true;
+    applyTuning(tuneValue);
+    applyRate(rateValue);
+    applyPitch(pitchValue);
+  }
+
+  function ensureAudio(){
+    if(!audioCtx){ initAudio(); }
+    else if(audioCtx.state === 'suspended'){ audioCtx.resume(); }
+  }
+
+  function setPower(on){
+    powerOn = on;
+    powerBtn.textContent = on ? 'Isključi radio' : 'Uključi radio';
+    powerBtn.classList.toggle('on', on);
+    radioEl.classList.toggle('on', on);
+    if(on){
+      ensureAudio();
+      if(masterGain) masterGain.gain.setTargetAtTime(1, audioCtx.currentTime, 0.08);
+    } else if(masterGain){
+      masterGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.08);
+    }
+  }
+  powerBtn.addEventListener('click', ()=> setPower(!powerOn));
+
+  function applyTuning(v){
+    tuneValue = v;
+    freqDisplay.textContent = fmDisplay(v);
+    if(!ready) return;
+    let minDist = Infinity;
+    CONFIG.radioStations.forEach(st=>{
+      const dist = Math.abs(st.freq - v);
+      minDist = Math.min(minDist, dist);
+      const strength = Math.max(0, 1 - dist / CONFIG.radioCapture);
+      st._gain.gain.setTargetAtTime(strength * 0.9, audioCtx.currentTime, 0.06);
+    });
+    const staticLevel = Math.min(1, minDist / CONFIG.radioCapture);
+    noiseGain.gain.setTargetAtTime(0.05 + staticLevel * 0.28, audioCtx.currentTime, 0.06);
+  }
+
+  function applyRate(v){
+    rateValue = v;
+    if(!ready) return;
+    CONFIG.radioStations.forEach(st=>{ st._voice._rate = v; });
+  }
+
+  function applyPitch(v){
+    pitchValue = v;
+    if(!ready) return;
+    CONFIG.radioStations.forEach(st=>{ st._voice._pitch = v; });
+  }
+
+  function makeKnob(faceEl, knobEl, opts){
+    const { min, max, initial, onChange, onStart } = opts;
+    const sweep = 260, half = sweep/2;
+    function angleFromValue(v){ return -half + ((v-min)/(max-min)) * sweep; }
+    function valueFromAngle(a){ return min + Math.max(0, Math.min(1, (a+half)/sweep)) * (max-min); }
+    function applyAngle(a){
+      a = Math.max(-half, Math.min(half, a));
+      knobEl.style.transform = `rotate(${a}deg)`;
+      onChange(valueFromAngle(a));
+    }
+    applyAngle(angleFromValue(initial));
+
+    let dragging = false;
+    function move(e){
+      if(!dragging) return;
+      const rect = faceEl.getBoundingClientRect();
+      let deg = Math.atan2(e.clientY-(rect.top+rect.height/2), e.clientX-(rect.left+rect.width/2)) * 180/Math.PI + 90;
+      if(deg > 180) deg -= 360;
+      if(deg < -180) deg += 360;
+      applyAngle(deg);
+      if(e.cancelable) e.preventDefault();
+    }
+    faceEl.addEventListener('pointerdown', e=>{
+      dragging = true;
+      try{ faceEl.setPointerCapture(e.pointerId); }catch(err){}
+      if(onStart) onStart();
+      move(e);
+    });
+    faceEl.addEventListener('pointermove', move);
+    faceEl.addEventListener('pointerup', e=>{ dragging = false; try{ faceEl.releasePointerCapture(e.pointerId); }catch(err){} });
+    faceEl.addEventListener('pointercancel', ()=>{ dragging = false; });
+    return { setValue: v => applyAngle(angleFromValue(v)) };
+  }
+
+  const tuneKnob = makeKnob(document.getElementById('tuneKnobFace'), document.getElementById('tuneKnob'), {
+    min: 0, max: 100, initial: tuneValue, onStart: ensureAudio, onChange: applyTuning
+  });
+  makeKnob(document.getElementById('speedKnobFace'), document.getElementById('speedKnob'), {
+    min: CONFIG.radioRateRange[0], max: CONFIG.radioRateRange[1], initial: rateValue,
+    onStart: ensureAudio, onChange: applyRate
+  });
+  makeKnob(document.getElementById('pitchKnobFace'), document.getElementById('pitchKnob'), {
+    min: CONFIG.radioPitchRange[0], max: CONFIG.radioPitchRange[1], initial: pitchValue,
+    onStart: ensureAudio, onChange: applyPitch
+  });
+  freqDisplay.textContent = fmDisplay(tuneValue);
+
+  const FREQ_STEP_VALUE = 100 * 0.1 / (108.0 - 87.5); // koliko "0-100" jedinica čini 0.1 MHz
+  function nudgeFreq(dir){
+    ensureAudio();
+    const next = Math.max(0, Math.min(100, tuneValue + dir * FREQ_STEP_VALUE));
+    tuneKnob.setValue(next);
+  }
+  document.getElementById('freqDown').addEventListener('click', ()=> nudgeFreq(-1));
+  document.getElementById('freqUp').addEventListener('click', ()=> nudgeFreq(1));
+
+  document.addEventListener('screenchange', e=>{
+    if(e.detail.from === 's4b' && audioCtx && audioCtx.state === 'running'){
+      audioCtx.suspend();
+    }
+  });
+
+  document.getElementById('radioBtn').addEventListener('click', checkRadio);
+  document.getElementById('radioInput').addEventListener('keydown', e=>{ if(e.key==='Enter') checkRadio(); });
+  document.getElementById('radioSkipBtn').addEventListener('click', ()=> goTo('s5b'));
+  let radioWrong = 0;
+  function checkRadio(){
+    const val = normalize(document.getElementById('radioInput').value);
+    const fb = document.getElementById('radioFeedback');
+    const ok = CONFIG.radioAnswer.every(name => val.includes(normalize(name)));
+    if(ok){
+      fb.textContent = "Prepoznato.";
+      fb.className = "feedback ok";
+      setTimeout(()=> goTo('s5b'), 800);
+    } else {
+      radioWrong++;
+      const left = CONFIG.maxAttempts - radioWrong;
+      fb.textContent = left > 0 ? `Nije to. Preostalo pokušaja: ${left}.` : "Nije to.";
+      fb.className = "feedback err";
+      if(radioWrong >= CONFIG.maxAttempts){
+        document.getElementById('radioSkipBtn').hidden = false;
       }
     }
   }
@@ -711,15 +1161,102 @@ function checkAccess(){
   }
 })();
 
+/* ---------- 05b scramble puzzle ---------- */
+(function(){
+  const target = CONFIG.scrambleAnswer;
+  let pool = shuffleLetters(target.split(''));
+  let placed = [];
+  let wrong = 0;
+
+  function shuffleLetters(arr){
+    for(let i = arr.length - 1; i > 0; i--){
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  const slotsEl = document.getElementById('scrambleSlots');
+  const poolEl = document.getElementById('scramblePool');
+  const fb = document.getElementById('scrambleFeedback');
+
+  function renderSlots(){
+    slotsEl.innerHTML = target.split('').map((_, i) => `<div class="slot">${placed[i] || ''}</div>`).join('');
+  }
+
+  function renderPool(){
+    poolEl.innerHTML = '';
+    pool.forEach((letter, idx) => {
+      const t = document.createElement('div');
+      t.className = 'tile';
+      t.textContent = letter;
+      t.style.transform = `rotate(${(Math.random() * 10 - 5).toFixed(1)}deg)`;
+      t.addEventListener('click', () => placeTile(idx));
+      poolEl.appendChild(t);
+    });
+  }
+
+  function placeTile(idx){
+    if(placed.length >= target.length) return;
+    placed.push(pool[idx]);
+    pool.splice(idx, 1);
+    renderPool();
+    renderSlots();
+    if(placed.length === target.length){
+      checkScramble();
+    }
+  }
+
+  function resetTiles(){
+    pool = shuffleLetters(target.split(''));
+    placed = [];
+    renderPool();
+    renderSlots();
+  }
+
+  function checkScramble(){
+    const answer = placed.join('');
+    if(answer === target){
+      fb.textContent = "Poruka sastavljena.";
+      fb.className = "feedback ok";
+      setTimeout(()=> goTo('s5'), 900);
+    } else {
+      wrong++;
+      const left = CONFIG.maxAttempts - wrong;
+      fb.textContent = left > 0 ? `Nije to. Preostalo pokušaja: ${left}.` : "Nije to.";
+      fb.className = "feedback err";
+      slotsEl.classList.add('shake');
+      setTimeout(()=> slotsEl.classList.remove('shake'), 500);
+      if(wrong >= CONFIG.maxAttempts){
+        document.getElementById('scrambleSkipBtn').hidden = false;
+      }
+      setTimeout(resetTiles, 700);
+    }
+  }
+
+  document.getElementById('scrambleReset').addEventListener('click', ()=>{
+    fb.textContent = '';
+    resetTiles();
+  });
+  document.getElementById('scrambleSkipBtn').addEventListener('click', ()=>{
+    goTo('s5');
+  });
+
+  renderPool();
+  renderSlots();
+})();
+
 /* ---------- 06 evidence + final answer ---------- */
 function buildEvidence(){
   const grid = document.getElementById('evGrid');
+  const witnessNames = CONFIG.radioAnswer.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(' i ');
   const items = [
     { ic: "🗓️", val: solved.years || "10", lbl: "godina" },
     { ic: "✒️", val: "1", lbl: "potpis" },
-    { ic: "👥", val: CONFIG.witnessCount, lbl: "svjedoka" },
+    { ic: "👥", val: witnessNames, lbl: "svjedoci" },
     { ic: "📅", val: "9.4.2027.", lbl: "datum" },
     { ic: "📡", val: (solved.code || CONFIG.morseAnswer).toUpperCase(), lbl: "potvrda" },
+    { ic: "🍖", val: CONFIG.scrambleAnswer, lbl: "poruka" },
     { ic: "📍", val: solved.location || "?", lbl: "lokacija" }
   ];
   grid.innerHTML = items.map(i => `
